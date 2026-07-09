@@ -1,0 +1,192 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-violet: var(--violet);
+  --color-violet-glow: var(--violet-glow);
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.875rem;
+  /* Aurora — light ground, cool-biased neutrals, one iridescent accent */
+  --background: #ffffff;
+  --foreground: #14141a;
+  --card: #ffffff;
+  --card-foreground: #14141a;
+  --popover: #ffffff;
+  --popover-foreground: #14141a;
+  --primary: #6a5af0;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f8;
+  --secondary-foreground: #14141a;
+  --muted: #f3f3f7;
+  --muted-foreground: #63636e;
+  --accent: #6a5af0;
+  --accent-foreground: #ffffff;
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: #ffffff;
+  --border: rgba(20, 20, 34, 0.1);
+  --input: rgba(20, 20, 34, 0.14);
+  --ring: #6a5af0;
+  --violet: #6a5af0;
+  --violet-strong: #5b4ae0;
+  --violet-glow: #7a5cf0;
+
+  /* The single Aurora moment: rose → violet → blue */
+  --gradient-violet: linear-gradient(100deg, #ff5f9e 0%, #7a5cf0 46%, #4ba3ff 100%);
+  --gradient-hero: radial-gradient(ellipse at top, oklch(0.9 0.06 300 / 0.5), transparent 60%);
+  --shadow-glow: 0 12px 40px -20px rgba(106, 90, 240, 0.45);
+  --shadow-glow-lg: 0 24px 70px -30px rgba(106, 90, 240, 0.5);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(ellipse 70% 45% at 50% -8%, rgba(122, 92, 240, 0.08), transparent 60%),
+      radial-gradient(ellipse 45% 35% at 92% 4%, rgba(255, 95, 158, 0.06), transparent 70%);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@utility text-gradient-violet {
+  background: linear-gradient(135deg, oklch(0.75 0.22 305), oklch(0.65 0.27 325));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility glass {
+  background: color-mix(in oklab, white 68%, transparent);
+  backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(20, 20, 34, 0.08);
+}
+
+@utility glass-strong {
+  background: color-mix(in oklab, white 82%, transparent);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(20, 20, 34, 0.1);
+}
+
+@utility glow-violet {
+  box-shadow: 0 12px 40px -20px rgba(106, 90, 240, 0.45);
+}
+
+@utility hover-glow {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  &:hover {
+    border-color: rgba(106, 90, 240, 0.35);
+    box-shadow: 0 18px 44px -24px rgba(106, 90, 240, 0.45);
+    transform: translateY(-3px);
+  }
+}
+
+@utility grid-bg {
+  background-image:
+    linear-gradient(rgba(106, 90, 240, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(106, 90, 240, 0.05) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 20%, black 20%, transparent 75%);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes blob-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(40px, -30px, 0) scale(1.08); }
+  66% { transform: translate3d(-30px, 20px, 0) scale(0.95); }
+}
+@keyframes grid-pan {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 48px 48px, 48px 48px; }
+}
+/* Aurora: slow, living iridescent motion */
+@keyframes aurora-orb {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(-26px, 22px, 0) scale(1.1) rotate(8deg); }
+}
+@keyframes gradient-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-blob { animation: blob-drift 18s ease-in-out infinite; }
+.animate-grid-pan { animation: grid-pan 40s linear infinite; }
+.animate-aurora-orb { animation: aurora-orb 18s ease-in-out infinite; }
+
+/* Animated iridescent text — a slow light sweep across the fill */
+@utility text-aurora-animated {
+  background: linear-gradient(100deg, #ff5f9e 0%, #7a5cf0 34%, #4ba3ff 50%, #7a5cf0 66%, #ff5f9e 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-pan 7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

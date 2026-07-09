@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio-dev",
+      "runtimeExecutable": "/Users/skyzeelhombre/.bun/bin/bun",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    }
+  ]
+}
