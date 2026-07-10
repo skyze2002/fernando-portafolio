@@ -1,10 +1,16 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Github, Linkedin, FileDown } from "lucide-react";
 
-// TODO: replace with your real links before publishing.
-const GITHUB_URL = "#";
-const LINKEDIN_URL = "#";
-const CV_URL = "#"; // e.g. "/Fernando-Montecinos-CV.pdf"
+const GITHUB_URL = "https://github.com/skyze2002";
+const LINKEDIN_URL = "https://www.linkedin.com/in/fernando-montecinos-954b2125b";
+// TODO: add the CV PDF to /public and set its path here (e.g. "/Fernando-Montecinos-CV.pdf").
+const CV_URL = "";
+
+const socialLinks = [
+  { href: GITHUB_URL, icon: Github, label: "GitHub" },
+  { href: LINKEDIN_URL, icon: Linkedin, label: "LinkedIn" },
+  { href: CV_URL, icon: FileDown, label: "Download CV" },
+].filter((l) => l.href);
 
 export function Hero() {
   return (
@@ -80,35 +86,19 @@ export function Hero() {
           </a>
 
           <div className="flex items-center gap-2">
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="GitHub"
-              className="glass hover-glow inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-foreground"
-            >
-              <Github className="h-4 w-4" />
-              <span className="hidden sm:inline">GitHub</span>
-            </a>
-            <a
-              href={LINKEDIN_URL}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinkedIn"
-              className="glass hover-glow inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-foreground"
-            >
-              <Linkedin className="h-4 w-4" />
-              <span className="hidden sm:inline">LinkedIn</span>
-            </a>
-            <a
-              href={CV_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="glass hover-glow inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-foreground"
-            >
-              <FileDown className="h-4 w-4" />
-              <span className="hidden sm:inline">Download CV</span>
-            </a>
+            {socialLinks.map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={l.label}
+                className="glass hover-glow inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-foreground"
+              >
+                <l.icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{l.label}</span>
+              </a>
+            ))}
           </div>
         </motion.div>
       </div>

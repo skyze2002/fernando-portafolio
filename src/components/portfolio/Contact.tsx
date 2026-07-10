@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Send, Github, Linkedin, Twitter, Mail, Instagram,
+  Send, Github, Linkedin, Mail,
   Code2, Bot, Palette, Lightbulb, Rocket, Building,
 } from "lucide-react";
 
@@ -15,11 +15,13 @@ const services = [
 ];
 
 const socials = [
-  { icon: Github, label: "GitHub", href: "#" },
-  { icon: Linkedin, label: "LinkedIn", href: "#" },
-  { icon: Twitter, label: "X", href: "#" },
-  { icon: Mail, label: "Email", href: "mailto:hello@fernandomontecinos.dev" },
-  { icon: Instagram, label: "Instagram", href: "#" },
+  { icon: Github, label: "GitHub", href: "https://github.com/skyze2002" },
+  {
+    icon: Linkedin,
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/fernando-montecinos-954b2125b",
+  },
+  { icon: Mail, label: "Email", href: "mailto:fernndomontecinos@gmail.com" },
 ];
 
 export function Contact() {
@@ -134,6 +136,8 @@ export function Contact() {
                   <a
                     key={s.label}
                     href={s.href}
+                    target={s.href.startsWith("http") ? "_blank" : undefined}
+                    rel={s.href.startsWith("http") ? "noreferrer" : undefined}
                     aria-label={s.label}
                     className="hover-glow inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm transition-colors hover:text-[var(--violet-strong)]"
                   >
