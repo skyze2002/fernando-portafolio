@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import {
   Send, Github, Linkedin, Mail,
@@ -24,8 +24,52 @@ const socials = [
   { icon: Mail, label: "Email", href: "mailto:fernndomontecinos@gmail.com" },
 ];
 
+// Paste your Formspree form ID here (create a free form at https://formspree.io →
+// e.g. "xdkzabcd") to enable silent submissions. While empty, the form falls back
+// to opening the visitor's email app pre-filled to your inbox.
+const FORMSPREE_ID: string = "";
+const CONTACT_EMAIL = "fernndomontecinos@gmail.com";
+
 export function Contact() {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const message = String(data.get("message") ?? "").trim();
+
+    // Fallback: no Formspree configured → open the visitor's email client.
+    if (!FORMSPREE_ID) {
+      const subject = encodeURIComponent(`Portfolio message from ${name}`);
+      const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+      setStatus("sent");
+      form.reset();
+      window.setTimeout(() => setStatus("idle"), 5000);
+      return;
+    }
+
+    try {
+      setStatus("sending");
+      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: data,
+      });
+      if (res.ok) {
+        setStatus("sent");
+        form.reset();
+        window.setTimeout(() => setStatus("idle"), 5000);
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
+  }
 
   return (
     <section id="contact" className="relative py-28">
@@ -49,11 +93,7 @@ export function Contact() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5 }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSent(true);
-              setTimeout(() => setSent(false), 3000);
-            }}
+            onSubmit={handleSubmit}
             className="glass-strong space-y-4 rounded-2xl p-6 sm:p-8"
           >
             <div>
@@ -62,6 +102,7 @@ export function Contact() {
               </label>
               <input
                 id="name"
+                name="name"
                 required
                 type="text"
                 placeholder="Your name"
@@ -74,6 +115,7 @@ export function Contact() {
               </label>
               <input
                 id="email"
+                name="email"
                 required
                 type="email"
                 placeholder="you@example.com"
@@ -86,6 +128,7 @@ export function Contact() {
               </label>
               <textarea
                 id="message"
+                name="message"
                 required
                 rows={5}
                 placeholder="Tell me about your project..."
@@ -94,14 +137,34 @@ export function Contact() {
             </div>
             <motion.button
               type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={status === "sending"}
+              whileHover={status === "sending" ? undefined : { scale: 1.02 }}
+              whileTap={status === "sending" ? undefined : { scale: 0.98 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--violet)] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(106,90,240,0.7)] hover:shadow-[0_16px_36px_-12px_rgba(106,90,240,0.8)]"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--violet)] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(106,90,240,0.7)] hover:shadow-[0_16px_36px_-12px_rgba(106,90,240,0.8)] disabled:opacity-70"
             >
-              {sent ? "Message Sent" : "Send Message"}
+              {status === "sending"
+                ? "Sending…"
+                : status === "sent"
+                  ? "Message Sent"
+                  : status === "error"
+                    ? "Try Again"
+                    : "Send Message"}
               <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </motion.button>
+
+            {status === "sent" && (
+              <p className="text-center text-sm font-medium text-[#1a9e6f]">
+                {FORMSPREE_ID
+                  ? "Thanks! I'll get back to you soon."
+                  : "Opening your email app — just hit send to reach me."}
+              </p>
+            )}
+            {status === "error" && (
+              <p className="text-center text-sm font-medium text-[#d64545]">
+                Something went wrong. Email me directly at {CONTACT_EMAIL}.
+              </p>
+            )}
           </motion.form>
 
           {/* Right column */}
