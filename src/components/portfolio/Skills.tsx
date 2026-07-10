@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import {
-  Atom, Layers, Braces, Wind, Smartphone,
-  Server, Code, Network, Database, Cylinder, Cloud,
-  GitBranch, Brain, Workflow, Palette,
+  Atom, Layers, Braces, Wind, FileCode2,
+  Code, Network, Database, ShieldCheck, Cylinder, Cloud,
+  GitBranch, Brain, Languages, Blocks,
 } from "lucide-react";
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
 
@@ -13,17 +13,17 @@ const groups = [
       { name: "React", icon: Atom },
       { name: "Next.js", icon: Layers },
       { name: "TypeScript", icon: Braces },
+      { name: "JavaScript", icon: FileCode2 },
       { name: "Tailwind CSS", icon: Wind },
-      { name: "React Native (Expo)", icon: Smartphone },
     ],
   },
   {
     title: "Backend",
     items: [
-      { name: "Node.js", icon: Server },
       { name: "tRPC", icon: Code },
       { name: "REST APIs", icon: Network },
       { name: "Prisma", icon: Database },
+      { name: "Auth & Roles", icon: ShieldCheck },
     ],
   },
   {
@@ -38,8 +38,8 @@ const groups = [
     title: "Also in my toolkit",
     items: [
       { name: "AI Integration", icon: Brain },
-      { name: "Automation", icon: Workflow },
-      { name: "UI/UX", icon: Palette },
+      { name: "i18n (Bilingual UIs)", icon: Languages },
+      { name: "No-code Platforms", icon: Blocks },
     ],
   },
 ];

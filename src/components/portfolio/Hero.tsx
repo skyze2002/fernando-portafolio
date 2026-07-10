@@ -3,8 +3,7 @@ import { ArrowRight, Github, Linkedin, FileDown } from "lucide-react";
 
 const GITHUB_URL = "https://github.com/skyze2002";
 const LINKEDIN_URL = "https://www.linkedin.com/in/fernando-montecinos-954b2125b";
-// TODO: add the CV PDF to /public and set its path here (e.g. "/Fernando-Montecinos-CV.pdf").
-const CV_URL = "";
+const CV_URL = "/Fernando-Montecinos-CV.pdf";
 
 const socialLinks = [
   { href: GITHUB_URL, icon: Github, label: "GitHub" },

@@ -6,7 +6,7 @@ import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
 const projects = [
   {
     name: "Rentaven",
-    category: "Property management SaaS · Mobile app",
+    category: "Property management SaaS · Mobile-first web app",
     tagline: "Your rent, safe at home.",
     description:
       "A mobile-first platform that lets real-estate investors collect rent and run their whole portfolio from their phone. Rentaven splits the experience into three role-based portals — owner, partner, and tenant — so everyone sees exactly what matters to them.",
@@ -17,7 +17,7 @@ const projects = [
       "Tenant rent payments, requests & renewals",
       "Bilingual (EN / ES) · light & dark themes",
     ],
-    stack: ["React Native (Expo)", "Next.js", "tRPC", "Prisma", "Supabase", "TypeScript"],
+    stack: ["Next.js", "TypeScript", "tRPC", "Prisma", "Supabase", "Tailwind CSS"],
     shots: [
       { src: "/projects/rentaven/portal.png", label: "Portal · dark" },
       { src: "/projects/rentaven/portal-light.png", label: "Portal · light" },
