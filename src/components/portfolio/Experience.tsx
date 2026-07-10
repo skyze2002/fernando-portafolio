@@ -4,19 +4,28 @@ import { fadeUp, viewportOnce } from "@/lib/motion";
 
 const entries = [
   {
-    year: "2026",
-    title: "AI Product Builder",
-    text: "Building AI-powered tools, business systems, and web applications focused on speed, usability, and real business value.",
+    year: "2026 — Present",
+    title: "Rentaven — Full-Stack SaaS",
+    org: "Personal project",
+    text: "Building a multi-role rental platform (owner, tenant, admin) with a bilingual, mobile-first UI and a fully type-safe stack: Next.js, TypeScript, tRPC, Prisma and Supabase.",
   },
   {
-    year: "2025",
-    title: "Full-Stack Developer",
-    text: "Developed and shipped modern web applications using React, Next.js, Supabase, Prisma, Tailwind CSS, and cloud tools.",
+    year: "2024 — 2025",
+    title: "Junior Web Developer",
+    org: "MIGO S.A.C · Arequipa, Perú",
+    text: "Developed and maintained web features under senior supervision — fixing bugs, writing unit and functional tests, and shipping new functionality within the team's workflow.",
   },
   {
-    year: "2024",
-    title: "Automation & Web Solutions",
-    text: "Created automation systems, no-code solutions, websites, and digital workflows for business operations.",
+    year: "2023 — Present",
+    title: "Web Designer / Junior Web Developer",
+    org: "Fizz Software · Arequipa, Perú",
+    text: "Design and build responsive, mobile-first websites with HTML5, CSS3, JavaScript and Bootstrap — from interface design through to launch.",
+  },
+  {
+    year: "2023 — Present",
+    title: "B.Sc. Systems Engineering (in progress)",
+    org: "Universidad Tecnológica del Perú (UTP)",
+    text: "Software-development focus: programming fundamentals and systems architecture.",
   },
 ];
 
@@ -87,6 +96,7 @@ export function Experience() {
                       {e.year}
                     </span>
                     <h3 className="mt-1 font-display text-xl font-bold">{e.title}</h3>
+                    <p className="mt-0.5 text-xs font-medium text-foreground/70">{e.org}</p>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{e.text}</p>
                   </motion.div>
                 </div>

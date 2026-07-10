@@ -4,10 +4,10 @@ import { Code2, Cpu, Zap, Rocket } from "lucide-react";
 import { fadeLeft, fadeRight, fadeUp, stagger, viewportOnce } from "@/lib/motion";
 
 const stats = [
-  { value: "10+", label: "Projects Delivered" },
-  { value: "3+", label: "Business Systems Built" },
-  { value: "2+", label: "Years Building" },
-  { value: "AI", label: "+ Automation Focus" },
+  { value: "3+", label: "Years Coding" },
+  { value: "2", label: "Companies" },
+  { value: "1", label: "Full-Stack SaaS" },
+  { value: "C1", label: "English Level" },
 ];
 
 // Counts up from 0 → the leading number when scrolled into view (once).
