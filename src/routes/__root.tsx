@@ -73,24 +73,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Fernando Montecinos — AI Builder & Full-Stack Developer" },
+      { title: "Fernando Montecinos — Full-Stack Developer" },
       {
         name: "description",
         content:
-          "Fernando Montecinos builds AI-powered applications, modern web apps, and automation systems that help businesses grow and operate smarter.",
+          "Full-Stack Developer building web applications end to end — from the interface to the database. React, Next.js, TypeScript, tRPC, Prisma and Supabase.",
       },
       { name: "author", content: "Fernando Montecinos" },
-      { property: "og:title", content: "Fernando Montecinos — AI Builder & Full-Stack Developer" },
+      { property: "og:title", content: "Fernando Montecinos — Full-Stack Developer" },
       {
         property: "og:description",
         content:
-          "AI-powered applications, modern web apps, automation systems, and digital products.",
+          "Full-Stack Developer building web applications end to end — React, Next.js, TypeScript, tRPC, Prisma and Supabase.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://fernandomontecinos.com" },
-      { property: "og:image", content: "https://fernandomontecinos.com/og-image.png" },
+      { property: "og:url", content: "https://www.fernandomontecinos.com" },
+      { property: "og:image", content: "https://www.fernandomontecinos.com/og-image.png" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://fernandomontecinos.com/og-image.png" },
+      { name: "twitter:image", content: "https://www.fernandomontecinos.com/og-image.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

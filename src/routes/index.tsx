@@ -11,19 +11,20 @@ import { Footer } from "@/components/portfolio/Footer";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Fernando Montecinos — AI Builder & Full-Stack Developer" },
+      { title: "Fernando Montecinos — Full-Stack Developer" },
       {
         name: "description",
         content:
-          "Fernando Montecinos builds AI-powered applications, modern web apps, and automation systems that help businesses grow and operate smarter.",
+          "Full-Stack Developer building web applications end to end — from the interface to the database. React, Next.js, TypeScript, tRPC, Prisma and Supabase.",
       },
-      { property: "og:title", content: "Fernando Montecinos — AI Builder & Full-Stack Developer" },
+      { property: "og:title", content: "Fernando Montecinos — Full-Stack Developer" },
       {
         property: "og:description",
         content:
-          "AI-powered applications, modern web apps, automation systems, and digital products.",
+          "Full-Stack Developer building web applications end to end — React, Next.js, TypeScript, tRPC, Prisma and Supabase.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://www.fernandomontecinos.com/og-image.png" },
     ],
   }),
   component: Index,
