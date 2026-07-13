@@ -49,6 +49,7 @@ export function About() {
             whileInView="show"
             viewport={viewportOnce}
             variants={fadeLeft}
+            className="min-w-0"
           >
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--violet-strong)]">
               About Me
@@ -98,9 +99,9 @@ export function About() {
             whileInView="show"
             viewport={viewportOnce}
             variants={fadeRight}
-            className="relative"
+            className="relative min-w-0"
           >
-            <div className="glass-strong relative overflow-hidden rounded-3xl p-8 glow-violet">
+            <div className="glass-strong relative overflow-hidden rounded-3xl p-6 sm:p-8 glow-violet">
               <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[rgba(122,92,240,0.16)] blur-3xl" />
               <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-[rgba(255,95,158,0.12)] blur-3xl" />
 
@@ -114,7 +115,7 @@ export function About() {
                   <span className="font-mono text-xs text-muted-foreground">~/builder.tsx</span>
                 </div>
 
-                <pre className="font-mono text-[13px] leading-relaxed text-foreground/80">
+                <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-foreground/80 sm:text-[13px]">
 {`const fernando = {
   role: "Full-Stack Developer",
   stack: ["React", "Next", "Supabase"],
