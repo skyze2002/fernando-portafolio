@@ -60,7 +60,7 @@ const projects: Project[] = [
     orientation: "desktop",
     shots: [
       { src: "/projects/leaderboard/board.png", label: "Live leaderboard" },
-      { src: "/projects/leaderboard/api.png", label: "FastAPI docs" },
+      { src: "/projects/leaderboard/api.png", label: "Redis · live ranking" },
     ],
     liveUrl: null,
     repoUrl: "https://github.com/skyze2002/leaderboard_api",
