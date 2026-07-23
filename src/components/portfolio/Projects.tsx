@@ -1,9 +1,22 @@
 import { motion } from "framer-motion";
-import { Check, ArrowUpRight, User } from "lucide-react";
+import { Check, ArrowUpRight, User, Github } from "lucide-react";
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
 
-// TODO: set the live URL once Rentaven is deployed (or leave null if private).
-const projects = [
+type Shot = { src: string; label: string };
+type Project = {
+  name: string;
+  category: string;
+  tagline: string;
+  description: string;
+  features: string[];
+  stack: string[];
+  orientation: "mobile" | "desktop";
+  shots: Shot[];
+  liveUrl: string | null;
+  repoUrl: string | null;
+};
+
+const projects: Project[] = [
   {
     name: "Rentaven",
     category: "Property management SaaS · Mobile-first web app",
@@ -18,6 +31,7 @@ const projects = [
       "Bilingual (EN / ES) · light & dark themes",
     ],
     stack: ["Next.js", "TypeScript", "tRPC", "Prisma", "Supabase", "Tailwind CSS"],
+    orientation: "mobile",
     shots: [
       { src: "/projects/rentaven/portal.png", label: "Portal · dark" },
       { src: "/projects/rentaven/portal-light.png", label: "Portal · light" },
@@ -26,7 +40,30 @@ const projects = [
       { src: "/projects/rentaven/tenant.png", label: "Tenant home · dark" },
       { src: "/projects/rentaven/tenant-light.png", label: "Tenant home · light" },
     ],
-    liveUrl: null as string | null,
+    liveUrl: null,
+    repoUrl: null,
+  },
+  {
+    name: "Leaderboard API",
+    category: "Real-time leaderboard · Full-stack (FastAPI + Redis)",
+    tagline: "Rankings that update the instant points land.",
+    description:
+      "A real-time ranking app where users earn points and the leaderboard updates instantly. Built around a deliberate split: PostgreSQL keeps every point event as immutable truth, while Redis holds the live ranking as a fast, disposable view — wipe Redis and the ranking rebuilds itself from the event log.",
+    features: [
+      "Instant ranking with Redis sorted sets",
+      "Immutable event log in PostgreSQL (source of truth)",
+      "Self-healing: ranking rebuilds from events",
+      "FastAPI REST API — add points, top-N, rebuild",
+      "Consistent writes: Postgres first, then Redis",
+    ],
+    stack: ["FastAPI", "Python", "Redis", "PostgreSQL", "React", "Vite"],
+    orientation: "desktop",
+    shots: [
+      { src: "/projects/leaderboard/board.png", label: "Live leaderboard" },
+      { src: "/projects/leaderboard/api.png", label: "FastAPI docs" },
+    ],
+    liveUrl: null,
+    repoUrl: "https://github.com/skyze2002/leaderboard_api",
   },
 ];
 
@@ -59,97 +96,122 @@ export function Projects() {
         </motion.div>
 
         <div className="space-y-10">
-          {projects.map((p) => (
-            <motion.article
-              key={p.name}
-              initial="hidden"
-              whileInView="show"
-              viewport={viewportOnce}
-              variants={fadeUp}
-              className="glass overflow-hidden rounded-3xl"
-            >
-              <div className="grid lg:grid-cols-2">
-                {/* Screens */}
-                <div
-                  className="relative flex items-end gap-4 overflow-x-auto p-6 sm:p-8"
-                  style={{
-                    background:
-                      "radial-gradient(ellipse at 20% 0%, rgba(122,92,240,0.14), transparent 60%), radial-gradient(ellipse at 90% 100%, rgba(255,95,158,0.12), transparent 60%), linear-gradient(135deg, #f6f4fe, #f1eefb)",
-                  }}
-                >
-                  {p.shots.map((s) => (
-                    <div
-                      key={s.label}
-                      className="relative h-[360px] w-[172px] shrink-0 overflow-hidden rounded-[1.6rem] border border-[rgba(20,20,34,0.08)] bg-white shadow-[0_24px_50px_-26px_rgba(20,20,50,0.5)]"
-                    >
-                      <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-medium text-muted-foreground">
-                        {s.label}
-                      </span>
-                      <img
-                        src={s.src}
-                        alt={`Rentaven — ${s.label}`}
-                        loading="lazy"
-                        className="relative h-full w-full object-cover object-top"
-                        onError={(e) => {
-                          e.currentTarget.style.visibility = "hidden";
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Details */}
-                <div className="flex flex-col p-8 sm:p-10">
-                  <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--violet-strong)]">
-                    {p.category}
-                  </span>
-                  <h3 className="mt-3 font-display text-2xl font-bold sm:text-3xl">{p.name}</h3>
-                  <p className="mt-1 text-sm italic text-muted-foreground">{p.tagline}</p>
-                  <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-3 py-1 text-xs font-medium text-[var(--violet-strong)]">
-                    <User className="h-3.5 w-3.5" />
-                    Solo project · designed &amp; built end to end
-                  </div>
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                    {p.description}
-                  </p>
-
-                  <ul className="mt-6 space-y-2.5">
-                    {p.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2.5 text-sm">
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(106,90,240,0.12)]">
-                          <Check className="h-3 w-3 text-[var(--violet-strong)]" />
-                        </span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-6 flex flex-wrap gap-1.5">
-                    {p.stack.map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-md border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-2 py-0.5 text-[11px] font-medium text-[var(--violet-strong)]"
+          {projects.map((p, i) => {
+            const isMobile = p.orientation === "mobile";
+            const reverse = i % 2 === 1;
+            return (
+              <motion.article
+                key={p.name}
+                initial="hidden"
+                whileInView="show"
+                viewport={viewportOnce}
+                variants={fadeUp}
+                className="glass overflow-hidden rounded-3xl"
+              >
+                <div className="grid lg:grid-cols-2">
+                  {/* Screens */}
+                  <div
+                    className={`relative flex gap-4 overflow-x-auto p-6 sm:p-8 ${
+                      isMobile ? "items-end" : "items-center"
+                    } ${reverse ? "lg:order-2" : ""}`}
+                    style={{
+                      background:
+                        "radial-gradient(ellipse at 20% 0%, rgba(122,92,240,0.14), transparent 60%), radial-gradient(ellipse at 90% 100%, rgba(255,95,158,0.12), transparent 60%), linear-gradient(135deg, #f6f4fe, #f1eefb)",
+                    }}
+                  >
+                    {p.shots.map((s) => (
+                      <div
+                        key={s.label}
+                        className={`relative shrink-0 overflow-hidden border border-[rgba(20,20,34,0.08)] bg-white shadow-[0_24px_50px_-26px_rgba(20,20,50,0.5)] ${
+                          isMobile
+                            ? "h-[360px] w-[172px] rounded-[1.6rem]"
+                            : "h-[212px] w-[340px] rounded-xl"
+                        }`}
                       >
-                        {t}
-                      </span>
+                        <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-medium text-muted-foreground">
+                          {s.label}
+                        </span>
+                        <img
+                          src={s.src}
+                          alt={`${p.name} — ${s.label}`}
+                          loading="lazy"
+                          className="relative h-full w-full object-cover object-top"
+                          onError={(e) => {
+                            e.currentTarget.style.visibility = "hidden";
+                          }}
+                        />
+                      </div>
                     ))}
                   </div>
 
-                  {p.liveUrl && (
-                    <a
-                      href={p.liveUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-7 inline-flex items-center gap-1.5 self-start rounded-xl bg-[var(--violet)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(106,90,240,0.7)] transition-transform hover:scale-[1.02]"
-                    >
-                      Visit Rentaven
-                      <ArrowUpRight className="h-4 w-4" />
-                    </a>
-                  )}
+                  {/* Details */}
+                  <div className={`flex flex-col p-8 sm:p-10 ${reverse ? "lg:order-1" : ""}`}>
+                    <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--violet-strong)]">
+                      {p.category}
+                    </span>
+                    <h3 className="mt-3 font-display text-2xl font-bold sm:text-3xl">{p.name}</h3>
+                    <p className="mt-1 text-sm italic text-muted-foreground">{p.tagline}</p>
+                    <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-3 py-1 text-xs font-medium text-[var(--violet-strong)]">
+                      <User className="h-3.5 w-3.5" />
+                      Solo project · designed &amp; built end to end
+                    </div>
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                      {p.description}
+                    </p>
+
+                    <ul className="mt-6 space-y-2.5">
+                      {p.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2.5 text-sm">
+                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(106,90,240,0.12)]">
+                            <Check className="h-3 w-3 text-[var(--violet-strong)]" />
+                          </span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-6 flex flex-wrap gap-1.5">
+                      {p.stack.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-md border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-2 py-0.5 text-[11px] font-medium text-[var(--violet-strong)]"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+
+                    {(p.liveUrl || p.repoUrl) && (
+                      <div className="mt-7 flex flex-wrap gap-2.5">
+                        {p.liveUrl && (
+                          <a
+                            href={p.liveUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--violet)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(106,90,240,0.7)] transition-transform hover:scale-[1.02]"
+                          >
+                            Live demo
+                            <ArrowUpRight className="h-4 w-4" />
+                          </a>
+                        )}
+                        {p.repoUrl && (
+                          <a
+                            href={p.repoUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-[rgba(20,20,34,0.14)] px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-[rgba(106,90,240,0.45)] hover:text-[var(--violet-strong)]"
+                          >
+                            <Github className="h-4 w-4" />
+                            View code
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </motion.article>
-          ))}
+              </motion.article>
+            );
+          })}
         </div>
       </div>
     </section>
