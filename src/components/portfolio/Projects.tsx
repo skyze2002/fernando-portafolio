@@ -40,7 +40,7 @@ const projects: Project[] = [
     metrics: [
       { value: "46", label: "commits" },
       { value: "+11,065", label: "lines" },
-      { value: "199", label: "tests · 32 fe / 167 be" },
+      { value: "199", label: "tests" },
       { value: "14", label: "screens" },
     ],
     orientation: "mobile",
