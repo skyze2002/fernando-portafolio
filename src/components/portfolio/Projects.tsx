@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowUpRight, User, Github, X } from "lucide-react";
+import { Check, ArrowUpRight, User, Users, Github, X } from "lucide-react";
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
 
 type Shot = { src: string; label: string };
@@ -12,7 +12,8 @@ type Project = {
   features: string[];
   stack: string[];
   badge: string;
-  metrics?: string[];
+  metrics?: { value: string; label: string }[];
+  team?: boolean;
   orientation: "mobile" | "desktop";
   shots: Shot[];
   liveUrl: string | null;
@@ -25,24 +26,31 @@ const projects: Project[] = [
     category: "Personal finance app · Fizz Software",
     tagline: "Tus cuentas claras.",
     description:
-      "A Peruvian personal-finance app for tracking income and expenses in soles and dollars, with budgets, an annual savings goal and reports. Built with a partner in a FastAPI + Postgres monorepo behind a React SPA. I shipped 46 commits across front-end, backend and infrastructure in four weeks.",
+      "A Peruvian personal-finance app: log every movement in soles or dollars, set budgets, and track an annual savings goal. Built for Peru — Yape, Plin and cash as first-class payment methods, with the SUNAT exchange rate built in. Made with a partner in a FastAPI + Postgres monorepo behind a React SPA; my part was 46 commits across front-end, backend and infrastructure.",
     features: [
-      "Multi-currency (PEN/USD) with live SUNAT exchange rate — cached, auto-refreshed, falls back to the last good rate",
-      "Front-end built against the OpenAPI contract with per-endpoint mocks, so it never waited on the backend",
-      "Dockerized production deploy on Linux — Nginx, Certbot TLS, separate prod compose, documented runbook",
-      "iOS Shortcut endpoint with a revocable token to log an expense in seconds, plus server-side filtering and pagination",
-      "Fixed averages that silently divided by months the user never had — the series now starts at the first real movement",
+      "Multi-currency (PEN/USD) driven by the live SUNAT rate — cached, refreshed every five minutes, falls back to the last good rate instead of breaking",
+      "Reports built on Recharts: weekly, monthly and annual views, savings projection and spend by category, all theme-aware in light and dark",
+      "Log an expense from an iOS Shortcut — a dedicated endpoint with a revocable personal token, no need to open the app",
+      "Shipped to production on Linux: Docker, Nginx, Certbot TLS, a separate prod compose file and a written deploy runbook",
+      "Fixed averages that divided by months the user never had — a first week of S/ 400 showed as S/ 23.53 and praised the user for being 94% under budget",
     ],
-    stack: ["React", "Vite", "FastAPI", "Python", "PostgreSQL", "Docker", "Nginx"],
+    stack: ["React", "Vite", "Recharts", "React Query", "FastAPI", "PostgreSQL", "Docker", "Nginx"],
     badge: "Team project · Fizz Software",
-    metrics: ["46 commits", "+11,065 lines", "199 tests (32 front · 167 back)", "4 weeks"],
+    team: true,
+    metrics: [
+      { value: "46", label: "commits" },
+      { value: "+11,065", label: "lines" },
+      { value: "199", label: "tests · 32 fe / 167 be" },
+      { value: "14", label: "screens" },
+    ],
     orientation: "mobile",
     shots: [
       { src: "/projects/hunu/login.jpg", label: "Sign in · receipt identity" },
       { src: "/projects/hunu/dashboard.jpg", label: "Dashboard" },
-      { src: "/projects/hunu/dark.jpg", label: "Dark mode" },
-      { src: "/projects/hunu/reports.jpg", label: "Reports" },
+      { src: "/projects/hunu/annual.jpg", label: "Annual report" },
+      { src: "/projects/hunu/budgets.jpg", label: "Budgets" },
       { src: "/projects/hunu/nav.jpg", label: "Radial navigation" },
+      { src: "/projects/hunu/dark.jpg", label: "Dark mode" },
     ],
     liveUrl: null,
     repoUrl: null,
@@ -175,7 +183,7 @@ export function Projects() {
                           aria-label={`View ${p.name} — ${s.label}`}
                           className={`group relative shrink-0 cursor-zoom-in overflow-hidden border border-[rgba(20,20,34,0.08)] bg-white shadow-[0_24px_50px_-26px_rgba(20,20,50,0.5)] transition-transform hover:-translate-y-1 ${
                             isMobile
-                              ? "h-[360px] w-[172px] rounded-[1.6rem]"
+                              ? "h-[372px] w-[166px] rounded-[1.6rem]"
                               : "h-[212px] w-[340px] rounded-xl"
                           }`}
                         >
@@ -208,7 +216,7 @@ export function Projects() {
                       <h3 className="mt-3 font-display text-2xl font-bold sm:text-3xl">{p.name}</h3>
                       <p className="mt-1 text-sm italic text-muted-foreground">{p.tagline}</p>
                       <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-3 py-1 text-xs font-medium text-[var(--violet-strong)]">
-                        <User className="h-3.5 w-3.5" />
+                        {p.team ? <Users className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
                         {p.badge}
                       </div>
                       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
@@ -216,16 +224,18 @@ export function Projects() {
                       </p>
 
                       {p.metrics && (
-                        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 rounded-xl border border-[rgba(20,20,34,0.08)] bg-[rgba(20,20,34,0.02)] px-4 py-3">
+                        <dl className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[rgba(20,20,34,0.08)] bg-[rgba(20,20,34,0.08)] sm:grid-cols-4">
                           {p.metrics.map((m) => (
-                            <span
-                              key={m}
-                              className="font-mono text-[11px] font-medium tabular-nums text-foreground/70"
-                            >
-                              {m}
-                            </span>
+                            <div key={m.label} className="bg-[var(--background)] px-3 py-3 text-center">
+                              <dt className="font-display text-lg font-bold tabular-nums text-[var(--violet-strong)]">
+                                {m.value}
+                              </dt>
+                              <dd className="mt-0.5 text-[10.5px] leading-tight text-muted-foreground">
+                                {m.label}
+                              </dd>
+                            </div>
                           ))}
-                        </div>
+                        </dl>
                       )}
 
                       <ul className="mt-6 space-y-2.5">

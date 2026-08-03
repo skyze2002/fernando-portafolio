@@ -67,7 +67,7 @@ export function Experience() {
           <div className="space-y-12">
             {entries.map((e, i) => (
               <motion.div
-                key={e.year}
+                key={e.title}
                 initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
