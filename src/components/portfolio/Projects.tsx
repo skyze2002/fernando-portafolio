@@ -11,6 +11,8 @@ type Project = {
   description: string;
   features: string[];
   stack: string[];
+  badge: string;
+  metrics?: string[];
   orientation: "mobile" | "desktop";
   shots: Shot[];
   liveUrl: string | null;
@@ -18,6 +20,33 @@ type Project = {
 };
 
 const projects: Project[] = [
+  {
+    name: "HUNU",
+    category: "Personal finance app · Fizz Software",
+    tagline: "Tus cuentas claras.",
+    description:
+      "A Peruvian personal-finance app for tracking income and expenses in soles and dollars, with budgets, an annual savings goal and reports. Built with a partner in a FastAPI + Postgres monorepo behind a React SPA. I shipped 46 commits across front-end, backend and infrastructure in four weeks.",
+    features: [
+      "Multi-currency (PEN/USD) with live SUNAT exchange rate — cached, auto-refreshed, falls back to the last good rate",
+      "Front-end built against the OpenAPI contract with per-endpoint mocks, so it never waited on the backend",
+      "Dockerized production deploy on Linux — Nginx, Certbot TLS, separate prod compose, documented runbook",
+      "iOS Shortcut endpoint with a revocable token to log an expense in seconds, plus server-side filtering and pagination",
+      "Fixed averages that silently divided by months the user never had — the series now starts at the first real movement",
+    ],
+    stack: ["React", "Vite", "FastAPI", "Python", "PostgreSQL", "Docker", "Nginx"],
+    badge: "Team project · Fizz Software",
+    metrics: ["46 commits", "+11,065 lines", "199 tests (32 front · 167 back)", "4 weeks"],
+    orientation: "mobile",
+    shots: [
+      { src: "/projects/hunu/login.jpg", label: "Sign in · receipt identity" },
+      { src: "/projects/hunu/dashboard.jpg", label: "Dashboard" },
+      { src: "/projects/hunu/dark.jpg", label: "Dark mode" },
+      { src: "/projects/hunu/reports.jpg", label: "Reports" },
+      { src: "/projects/hunu/nav.jpg", label: "Radial navigation" },
+    ],
+    liveUrl: null,
+    repoUrl: null,
+  },
   {
     name: "Rentaven",
     category: "Property management SaaS · Mobile-first web app",
@@ -32,6 +61,7 @@ const projects: Project[] = [
       "Bilingual (EN / ES) · light & dark themes",
     ],
     stack: ["Next.js", "TypeScript", "tRPC", "Prisma", "Supabase", "Tailwind CSS"],
+    badge: "Solo project · designed & built end to end",
     orientation: "mobile",
     shots: [
       { src: "/projects/rentaven/portal.png", label: "Portal · dark" },
@@ -58,6 +88,7 @@ const projects: Project[] = [
       "Consistent writes: Postgres first, then Redis",
     ],
     stack: ["FastAPI", "Python", "Redis", "PostgreSQL", "React", "Vite"],
+    badge: "Solo project · designed & built end to end",
     orientation: "desktop",
     shots: [
       { src: "/projects/leaderboard/board.png", label: "Live leaderboard" },
@@ -178,11 +209,24 @@ export function Projects() {
                       <p className="mt-1 text-sm italic text-muted-foreground">{p.tagline}</p>
                       <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-3 py-1 text-xs font-medium text-[var(--violet-strong)]">
                         <User className="h-3.5 w-3.5" />
-                        Solo project · designed &amp; built end to end
+                        {p.badge}
                       </div>
                       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                         {p.description}
                       </p>
+
+                      {p.metrics && (
+                        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 rounded-xl border border-[rgba(20,20,34,0.08)] bg-[rgba(20,20,34,0.02)] px-4 py-3">
+                          {p.metrics.map((m) => (
+                            <span
+                              key={m}
+                              className="font-mono text-[11px] font-medium tabular-nums text-foreground/70"
+                            >
+                              {m}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
                       <ul className="mt-6 space-y-2.5">
                         {p.features.map((f) => (
