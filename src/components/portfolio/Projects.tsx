@@ -223,7 +223,9 @@ function ShotStrip({
             onClick={() => onOpen(idx)}
             aria-label={`View ${project.name} — ${s.label}`}
             className={`group relative shrink-0 cursor-zoom-in overflow-hidden border border-[rgba(20,20,34,0.08)] bg-white shadow-[0_24px_50px_-26px_rgba(20,20,50,0.5)] transition-transform hover:-translate-y-1 ${
-              isMobile ? "h-[372px] w-[166px] rounded-[1.6rem]" : "h-[212px] w-[340px] rounded-xl"
+              isMobile
+                ? "h-[372px] w-[166px] rounded-[1.6rem]"
+                : "aspect-[16/10] w-[min(84vw,660px)] rounded-xl"
             }`}
           >
             <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-medium text-muted-foreground">
@@ -274,6 +276,96 @@ function ShotStrip({
         </span>
       )}
     </div>
+  );
+}
+
+function ProjectDetails({ project: p, wide }: { project: Project; wide: boolean }) {
+  return (
+    <>
+      <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--violet-strong)]">
+        {p.category}
+      </span>
+      <h3 className="mt-3 font-display text-2xl font-bold sm:text-3xl">{p.name}</h3>
+      <p className="mt-1 text-sm italic text-muted-foreground">{p.tagline}</p>
+      <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-3 py-1 text-xs font-medium text-[var(--violet-strong)]">
+        {p.team ? <Users className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
+        {p.badge}
+      </div>
+      <p className={`mt-4 text-sm leading-relaxed text-muted-foreground ${wide ? "max-w-3xl" : ""}`}>
+        {p.description}
+      </p>
+
+      {p.metrics && (
+        <dl
+          className={`mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[rgba(20,20,34,0.08)] bg-[rgba(20,20,34,0.08)] sm:grid-cols-4 ${
+            wide ? "max-w-2xl" : ""
+          }`}
+        >
+          {p.metrics.map((m) => (
+            <div key={m.label} className="bg-[var(--background)] px-3 py-3 text-center">
+              <dt className="font-display text-lg font-bold tabular-nums text-[var(--violet-strong)]">
+                {m.value}
+              </dt>
+              <dd className="mt-0.5 text-[10.5px] leading-tight text-muted-foreground">
+                {m.label}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      <ul className={`mt-6 space-y-2.5 ${wide ? "sm:columns-2 sm:gap-x-10 sm:space-y-0" : ""}`}>
+        {p.features.map((f) => (
+          <li
+            key={f}
+            className={`flex items-start gap-2.5 text-sm ${wide ? "break-inside-avoid pb-2.5" : ""}`}
+          >
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(106,90,240,0.12)]">
+              <Check className="h-3 w-3 text-[var(--violet-strong)]" />
+            </span>
+            {f}
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-6 flex flex-wrap gap-1.5">
+        {p.stack.map((t) => (
+          <span
+            key={t}
+            className="rounded-md border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-2 py-0.5 text-[11px] font-medium text-[var(--violet-strong)]"
+          >
+            {t}
+          </span>
+        ))}
+      </div>
+
+      {(p.liveUrl || p.repoUrl) && (
+        <div className="mt-7 flex flex-wrap gap-2.5">
+          {p.liveUrl && (
+            <a
+              href={p.liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--violet)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(106,90,240,0.7)] transition-transform hover:scale-[1.02]"
+            >
+              Live demo
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
+          )}
+          {p.repoUrl && (
+            <a
+              href={p.repoUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[rgba(20,20,34,0.14)] px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-[rgba(106,90,240,0.45)] hover:text-[var(--violet-strong)]"
+            >
+              <Github className="h-4 w-4" />
+              View code
+            </a>
+          )}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -341,94 +433,31 @@ export function Projects() {
                   variants={fadeUp}
                   className="glass overflow-hidden rounded-3xl"
                 >
-                  <div className="grid lg:grid-cols-2">
-                    {/* Screens */}
-                    <ShotStrip
-                      project={p}
-                      reverse={reverse}
-                      onOpen={(index) => setZoom({ shots: p.shots, index, name: p.name })}
-                    />
-
-                    {/* Details */}
-                    <div className={`flex flex-col p-8 sm:p-10 ${reverse ? "lg:order-1" : ""}`}>
-                      <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--violet-strong)]">
-                        {p.category}
-                      </span>
-                      <h3 className="mt-3 font-display text-2xl font-bold sm:text-3xl">{p.name}</h3>
-                      <p className="mt-1 text-sm italic text-muted-foreground">{p.tagline}</p>
-                      <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-3 py-1 text-xs font-medium text-[var(--violet-strong)]">
-                        {p.team ? <Users className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
-                        {p.badge}
+                  {p.orientation === "desktop" ? (
+                    // Wide screenshots need the full card width to stay legible,
+                    // so they sit on top and the details run underneath.
+                    <div>
+                      <ShotStrip
+                        project={p}
+                        reverse={false}
+                        onOpen={(index) => setZoom({ shots: p.shots, index, name: p.name })}
+                      />
+                      <div className="flex flex-col p-8 sm:p-10">
+                        <ProjectDetails project={p} wide />
                       </div>
-                      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                        {p.description}
-                      </p>
-
-                      {p.metrics && (
-                        <dl className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[rgba(20,20,34,0.08)] bg-[rgba(20,20,34,0.08)] sm:grid-cols-4">
-                          {p.metrics.map((m) => (
-                            <div key={m.label} className="bg-[var(--background)] px-3 py-3 text-center">
-                              <dt className="font-display text-lg font-bold tabular-nums text-[var(--violet-strong)]">
-                                {m.value}
-                              </dt>
-                              <dd className="mt-0.5 text-[10.5px] leading-tight text-muted-foreground">
-                                {m.label}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
-                      )}
-
-                      <ul className="mt-6 space-y-2.5">
-                        {p.features.map((f) => (
-                          <li key={f} className="flex items-start gap-2.5 text-sm">
-                            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(106,90,240,0.12)]">
-                              <Check className="h-3 w-3 text-[var(--violet-strong)]" />
-                            </span>
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-
-                      <div className="mt-6 flex flex-wrap gap-1.5">
-                        {p.stack.map((t) => (
-                          <span
-                            key={t}
-                            className="rounded-md border border-[rgba(106,90,240,0.2)] bg-[rgba(106,90,240,0.07)] px-2 py-0.5 text-[11px] font-medium text-[var(--violet-strong)]"
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-
-                      {(p.liveUrl || p.repoUrl) && (
-                        <div className="mt-7 flex flex-wrap gap-2.5">
-                          {p.liveUrl && (
-                            <a
-                              href={p.liveUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--violet)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(106,90,240,0.7)] transition-transform hover:scale-[1.02]"
-                            >
-                              Live demo
-                              <ArrowUpRight className="h-4 w-4" />
-                            </a>
-                          )}
-                          {p.repoUrl && (
-                            <a
-                              href={p.repoUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-xl border border-[rgba(20,20,34,0.14)] px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-[rgba(106,90,240,0.45)] hover:text-[var(--violet-strong)]"
-                            >
-                              <Github className="h-4 w-4" />
-                              View code
-                            </a>
-                          )}
-                        </div>
-                      )}
                     </div>
-                  </div>
+                  ) : (
+                    <div className="grid lg:grid-cols-2">
+                      <ShotStrip
+                        project={p}
+                        reverse={reverse}
+                        onOpen={(index) => setZoom({ shots: p.shots, index, name: p.name })}
+                      />
+                      <div className={`flex flex-col p-8 sm:p-10 ${reverse ? "lg:order-1" : ""}`}>
+                        <ProjectDetails project={p} wide={false} />
+                      </div>
+                    </div>
+                  )}
                 </motion.article>
               );
             })}
