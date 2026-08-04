@@ -1,6 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowUpRight, User, Users, Github, X } from "lucide-react";
+import {
+  Check,
+  ArrowUpRight,
+  User,
+  Users,
+  Github,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
 
 type Shot = { src: string; label: string };
@@ -140,13 +149,149 @@ const projects: Project[] = [
   },
 ];
 
+const STRIP_BG =
+  "radial-gradient(ellipse at 20% 0%, rgba(122,92,240,0.14), transparent 60%), radial-gradient(ellipse at 90% 100%, rgba(255,95,158,0.12), transparent 60%), linear-gradient(135deg, #f6f4fe, #f1eefb)";
+
+/**
+ * Horizontal strip of screenshots. Fades the edge it can still scroll toward and
+ * shows arrows, so a cut-off shot reads as "there is more" instead of "broken".
+ */
+function ShotStrip({
+  project,
+  reverse,
+  onOpen,
+}: {
+  project: Project;
+  reverse: boolean;
+  onOpen: (index: number) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+  const isMobile = project.orientation === "mobile";
+
+  const sync = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const left = el.scrollLeft > 4;
+    const right = Math.ceil(el.scrollLeft + el.clientWidth) < el.scrollWidth - 4;
+    setEdges((prev) => (prev.left === left && prev.right === right ? prev : { left, right }));
+  }, []);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [sync]);
+
+  const nudge = (dir: 1 | -1) => {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.75, behavior: "smooth" });
+  };
+
+  // Fade only the side that still has content to reveal.
+  const fade = 32;
+  const mask =
+    edges.left && edges.right
+      ? `linear-gradient(90deg, transparent 0, #000 ${fade}px, #000 calc(100% - ${fade}px), transparent 100%)`
+      : edges.right
+        ? `linear-gradient(90deg, #000 calc(100% - ${fade}px), transparent 100%)`
+        : edges.left
+          ? `linear-gradient(90deg, transparent 0, #000 ${fade}px)`
+          : undefined;
+
+  const arrow =
+    "absolute top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[rgba(20,20,34,0.1)] bg-white/90 text-[var(--violet-strong)] shadow-[0_6px_18px_-6px_rgba(20,20,50,0.45)] backdrop-blur transition hover:bg-white hover:scale-105";
+
+  return (
+    <div className={`relative ${reverse ? "lg:order-2" : ""}`} style={{ background: STRIP_BG }}>
+      <div
+        ref={ref}
+        onScroll={sync}
+        className={`no-scrollbar flex h-full gap-4 overflow-x-auto p-6 sm:p-8 ${
+          isMobile ? "items-end" : "items-center"
+        }`}
+        style={mask ? { maskImage: mask, WebkitMaskImage: mask } : undefined}
+      >
+        {project.shots.map((s, idx) => (
+          <button
+            type="button"
+            key={s.label}
+            onClick={() => onOpen(idx)}
+            aria-label={`View ${project.name} — ${s.label}`}
+            className={`group relative shrink-0 cursor-zoom-in overflow-hidden border border-[rgba(20,20,34,0.08)] bg-white shadow-[0_24px_50px_-26px_rgba(20,20,50,0.5)] transition-transform hover:-translate-y-1 ${
+              isMobile ? "h-[372px] w-[166px] rounded-[1.6rem]" : "h-[212px] w-[340px] rounded-xl"
+            }`}
+          >
+            <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-medium text-muted-foreground">
+              {s.label}
+            </span>
+            <img
+              src={s.src}
+              alt={`${project.name} — ${s.label}`}
+              loading="lazy"
+              className="relative h-full w-full object-cover object-top"
+              onError={(e) => {
+                e.currentTarget.style.visibility = "hidden";
+              }}
+            />
+            <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[rgba(20,20,34,0.28)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[var(--violet-strong)]">
+                Click to zoom
+              </span>
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {edges.left && (
+        <button
+          type="button"
+          onClick={() => nudge(-1)}
+          aria-label="Previous screenshots"
+          className={`${arrow} left-3`}
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+      )}
+      {edges.right && (
+        <button
+          type="button"
+          onClick={() => nudge(1)}
+          aria-label="More screenshots"
+          className={`${arrow} right-3`}
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      )}
+
+      {project.shots.length > 1 && (
+        <span className="pointer-events-none absolute right-4 top-4 rounded-full bg-[rgba(20,20,34,0.5)] px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
+          {project.shots.length} screens
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function Projects() {
-  const [zoom, setZoom] = useState<{ src: string; alt: string } | null>(null);
+  const [zoom, setZoom] = useState<{ shots: Shot[]; index: number; name: string } | null>(null);
+
+  const step = useCallback((dir: 1 | -1) => {
+    setZoom((z) =>
+      z ? { ...z, index: (z.index + dir + z.shots.length) % z.shots.length } : z,
+    );
+  }, []);
 
   useEffect(() => {
     if (!zoom) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setZoom(null);
+      if (e.key === "ArrowRight") step(1);
+      if (e.key === "ArrowLeft") step(-1);
     };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -154,7 +299,7 @@ export function Projects() {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [zoom]);
+  }, [zoom, step]);
 
   return (
     <>
@@ -186,7 +331,6 @@ export function Projects() {
 
           <div className="space-y-10">
             {projects.map((p, i) => {
-              const isMobile = p.orientation === "mobile";
               const reverse = i % 2 === 1;
               return (
                 <motion.article
@@ -199,47 +343,11 @@ export function Projects() {
                 >
                   <div className="grid lg:grid-cols-2">
                     {/* Screens */}
-                    <div
-                      className={`relative flex gap-4 overflow-x-auto p-6 sm:p-8 ${
-                        isMobile ? "items-end" : "items-center"
-                      } ${reverse ? "lg:order-2" : ""}`}
-                      style={{
-                        background:
-                          "radial-gradient(ellipse at 20% 0%, rgba(122,92,240,0.14), transparent 60%), radial-gradient(ellipse at 90% 100%, rgba(255,95,158,0.12), transparent 60%), linear-gradient(135deg, #f6f4fe, #f1eefb)",
-                      }}
-                    >
-                      {p.shots.map((s) => (
-                        <button
-                          type="button"
-                          key={s.label}
-                          onClick={() => setZoom({ src: s.src, alt: `${p.name} — ${s.label}` })}
-                          aria-label={`View ${p.name} — ${s.label}`}
-                          className={`group relative shrink-0 cursor-zoom-in overflow-hidden border border-[rgba(20,20,34,0.08)] bg-white shadow-[0_24px_50px_-26px_rgba(20,20,50,0.5)] transition-transform hover:-translate-y-1 ${
-                            isMobile
-                              ? "h-[372px] w-[166px] rounded-[1.6rem]"
-                              : "h-[212px] w-[340px] rounded-xl"
-                          }`}
-                        >
-                          <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-medium text-muted-foreground">
-                            {s.label}
-                          </span>
-                          <img
-                            src={s.src}
-                            alt={`${p.name} — ${s.label}`}
-                            loading="lazy"
-                            className="relative h-full w-full object-cover object-top"
-                            onError={(e) => {
-                              e.currentTarget.style.visibility = "hidden";
-                            }}
-                          />
-                          <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[rgba(20,20,34,0.28)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[var(--violet-strong)]">
-                              Click to zoom
-                            </span>
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+                    <ShotStrip
+                      project={p}
+                      reverse={reverse}
+                      onOpen={(index) => setZoom({ shots: p.shots, index, name: p.name })}
+                    />
 
                     {/* Details */}
                     <div className={`flex flex-col p-8 sm:p-10 ${reverse ? "lg:order-1" : ""}`}>
@@ -340,7 +448,7 @@ export function Projects() {
             transition={{ duration: 0.2 }}
             role="dialog"
             aria-modal="true"
-            aria-label={zoom.alt}
+            aria-label={`${zoom.name} — ${zoom.shots[zoom.index].label}`}
           >
             <button
               type="button"
@@ -350,16 +458,54 @@ export function Projects() {
             >
               <X className="h-5 w-5" />
             </button>
+
+            {zoom.shots.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Previous screenshot"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    step(-1);
+                  }}
+                  className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/25 sm:left-8"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next screenshot"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    step(1);
+                  }}
+                  className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/25 sm:right-8"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
+
             <motion.img
-              src={zoom.src}
-              alt={zoom.alt}
+              key={zoom.shots[zoom.index].src}
+              src={zoom.shots[zoom.index].src}
+              alt={`${zoom.name} — ${zoom.shots[zoom.index].label}`}
               onClick={(e) => e.stopPropagation()}
-              className="max-h-[90vh] max-w-[92vw] rounded-2xl shadow-2xl"
+              className="max-h-[84vh] max-w-[86vw] rounded-2xl shadow-2xl"
               initial={{ scale: 0.94, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.94, opacity: 0 }}
               transition={{ duration: 0.2 }}
             />
+
+            <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-4 py-1.5 text-center text-sm text-white backdrop-blur">
+              {zoom.shots[zoom.index].label}
+              {zoom.shots.length > 1 && (
+                <span className="ml-2 tabular-nums text-white/60">
+                  {zoom.index + 1} / {zoom.shots.length}
+                </span>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -135,6 +135,16 @@
   mask-image: radial-gradient(ellipse 70% 60% at 50% 20%, black 20%, transparent 75%);
 }
 
+/* Scroll strips carry their own affordance (edge fade + arrows), so the native
+   bar would only add noise. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-20px); }
