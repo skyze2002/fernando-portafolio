@@ -99,19 +99,34 @@ const projects: Project[] = [
   },
   {
     name: "Rentaven",
-    category: "Property management SaaS · Mobile-first web app",
+    category: "Property management SaaS · Web + iOS/Android",
     tagline: "Your rent, safe at home.",
     description:
-      "A mobile-first platform that lets real-estate investors collect rent and run their whole portfolio from their phone. Rentaven splits the experience into three role-based portals — owner, partner, and tenant — so everyone sees exactly what matters to them.",
+      "A multi-tenant property-management ERP: owners, their partners and their tenants run the whole rental lifecycle — leases, payments, maintenance, documents — from one invite-only platform, on the web and on native iOS/Android. I designed and built all of it end to end: schema, API, web app, mobile app, design system, e-signature engine and deployment.",
     features: [
-      "Owner, partner & tenant portals",
-      "Portfolio, occupancy & leases at a glance",
-      "Maintenance requests & full lease lifecycle",
-      "Tenant rent payments, requests & renewals",
-      "Bilingual (EN / ES) · light & dark themes",
+      "One type-safe domain across two platforms — a single tRPC + Zod API (260+ procedures) feeds both the Next.js web app and the React Native app, so rules and permissions never drift",
+      "E-signature engine built from scratch with pdf-lib: two-party ESIGN/UETA flow that emits an executed PDF with a tamper-evident SHA-256 audit certificate — no DocuSign",
+      "Multi-tenant RBAC — owner, partner, tenant and admin roles with per-entity data isolation, granular permissions and an immutable audit log",
+      "Real infrastructure, not mockups: transactional email (Resend), private document storage with signed URLs, and device push wired into every event",
+      "Shipped store-ready — biometric app-lock, patched CVEs, security headers, EAS production builds and in-app account deletion for App Store compliance",
     ],
-    stack: ["Next.js", "TypeScript", "tRPC", "Prisma", "Supabase", "Tailwind CSS"],
-    badge: "Solo project · designed & built end to end",
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "tRPC",
+      "Zod",
+      "Prisma",
+      "PostgreSQL",
+      "React Native (Expo)",
+      "Supabase",
+    ],
+    badge: "Solo project · Fizz Software",
+    metrics: [
+      { value: "70K+", label: "lines of TypeScript" },
+      { value: "260+", label: "typesafe endpoints" },
+      { value: "27", label: "domain modules" },
+      { value: "186", label: "screens · web + mobile" },
+    ],
     orientation: "mobile",
     shots: [
       { src: "/projects/rentaven/portal.png", label: "Portal · dark" },
@@ -121,7 +136,7 @@ const projects: Project[] = [
       { src: "/projects/rentaven/tenant.png", label: "Tenant home · dark" },
       { src: "/projects/rentaven/tenant-light.png", label: "Tenant home · light" },
     ],
-    liveUrl: null,
+    liveUrl: "https://rentaven.app",
     repoUrl: null,
   },
   {
@@ -211,9 +226,7 @@ function ShotStrip({
       <div
         ref={ref}
         onScroll={sync}
-        className={`no-scrollbar flex h-full gap-4 overflow-x-auto p-6 sm:p-8 ${
-          isMobile ? "items-end" : "items-center"
-        }`}
+        className="no-scrollbar flex h-full items-center gap-4 overflow-x-auto p-6 sm:p-8"
         style={mask ? { maskImage: mask, WebkitMaskImage: mask } : undefined}
       >
         {project.shots.map((s, idx) => (
