@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
-  User,
-  Users,
   Github,
   X,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   AlertTriangle,
 } from "lucide-react";
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
@@ -33,8 +32,6 @@ type Project = {
   challenge?: { title: string; text: string };
   stack: string[];
   team: boolean;
-  /** "sheet" = spec-sheet rail + screen grid. "stacked" = wide band, for sites/APIs. */
-  layout: "sheet" | "stacked";
   shots: Shot[];
   liveUrl: string | null;
   repoUrl: string | null;
@@ -95,7 +92,6 @@ const projects: Project[] = [
       "Supabase",
     ],
     team: false,
-    layout: "sheet",
     shots: [
       { src: "/projects/rentaven/portal.png", label: "Portal · dark" },
       { src: "/projects/rentaven/portal-light.png", label: "Portal · light" },
@@ -156,7 +152,6 @@ const projects: Project[] = [
     },
     stack: ["React", "Vite", "Recharts", "React Query", "FastAPI", "PostgreSQL", "Docker", "Nginx"],
     team: true,
-    layout: "sheet",
     shots: [
       { src: "/projects/hunu/login.jpg", label: "Sign in · receipt identity" },
       { src: "/projects/hunu/dashboard.jpg", label: "Dashboard" },
@@ -217,7 +212,6 @@ const projects: Project[] = [
     },
     stack: ["HTML", "CSS", "JavaScript", "Python", "IntersectionObserver"],
     team: false,
-    layout: "stacked",
     shots: [
       { src: "/projects/hunu-landing/hero.jpg", label: "Hero · the receipt prints" },
       { src: "/projects/hunu-landing/chat.jpg", label: "The objection, as a chat" },
@@ -264,7 +258,6 @@ const projects: Project[] = [
     ],
     stack: ["FastAPI", "Python", "Redis", "PostgreSQL", "React", "Vite"],
     team: false,
-    layout: "stacked",
     shots: [
       { src: "/projects/leaderboard/board.png", label: "Live leaderboard" },
       { src: "/projects/leaderboard/api.png", label: "Redis · live ranking" },
@@ -277,248 +270,209 @@ const projects: Project[] = [
 const PANEL_BG =
   "radial-gradient(ellipse at 20% 0%, rgba(122,92,240,0.14), transparent 60%), radial-gradient(ellipse at 90% 100%, rgba(255,95,158,0.12), transparent 60%), linear-gradient(135deg, #f6f4fe, #f1eefb)";
 
-const LABEL = "text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[var(--violet-strong)]";
-const RULE = "border-t border-[rgba(20,20,34,0.09)]";
-
-/** Screenshot that opens the gallery. Lifts 6px on hover. */
-function Shot({
-  shot,
-  project,
-  onOpen,
-  className = "",
-}: {
-  shot: Shot;
-  project: string;
-  onOpen: () => void;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-label={`View ${project} — ${shot.label}`}
-      className={`group relative overflow-hidden border border-[rgba(20,20,34,0.08)] bg-white shadow-[0_18px_40px_-24px_rgba(20,20,50,0.5)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_54px_-24px_rgba(35,25,80,0.45)] ${className}`}
-    >
-      <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-medium text-muted-foreground">
-        {shot.label}
-      </span>
-      <img
-        src={shot.src}
-        alt={`${project} — ${shot.label}`}
-        loading="lazy"
-        className="relative h-full w-full object-cover object-top"
-        onError={(e) => {
-          e.currentTarget.style.visibility = "hidden";
-        }}
-      />
-      <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-[rgba(20,20,34,0.62)] px-2 py-1.5 text-[10.5px] font-medium text-white transition-transform duration-300 group-hover:translate-y-0">
-        {shot.label}
-      </span>
-    </button>
-  );
-}
-
-/** Full-width swipeable band, for sites and APIs where shots are wide. */
-function ShotBand({ project, onOpen }: { project: Project; onOpen: (i: number) => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [edges, setEdges] = useState({ left: false, right: false });
-
-  const sync = useCallback(() => {
-    const el = ref.current;
-    if (!el) return;
-    const left = el.scrollLeft > 4;
-    const right = Math.ceil(el.scrollLeft + el.clientWidth) < el.scrollWidth - 4;
-    setEdges((p) => (p.left === left && p.right === right ? p : { left, right }));
-  }, []);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    sync();
-    const ro = new ResizeObserver(sync);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [sync]);
-
-  const nudge = (dir: 1 | -1) => {
-    ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.75, behavior: "smooth" });
-  };
-
-  const f = 32;
-  const mask =
-    edges.left && edges.right
-      ? `linear-gradient(90deg, transparent 0, #000 ${f}px, #000 calc(100% - ${f}px), transparent 100%)`
-      : edges.right
-        ? `linear-gradient(90deg, #000 calc(100% - ${f}px), transparent 100%)`
-        : edges.left
-          ? `linear-gradient(90deg, transparent 0, #000 ${f}px)`
-          : undefined;
-
-  const arrow =
-    "absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[rgba(20,20,34,0.1)] bg-white/90 text-[var(--violet-strong)] shadow-[0_6px_18px_-6px_rgba(20,20,50,0.45)] backdrop-blur transition hover:scale-105 hover:bg-white";
-
-  return (
-    <div className="relative" style={{ background: PANEL_BG }}>
-      <div
-        ref={ref}
-        onScroll={sync}
-        className="no-scrollbar flex items-center gap-4 overflow-x-auto p-6 sm:p-8"
-        style={mask ? { maskImage: mask, WebkitMaskImage: mask } : undefined}
-      >
-        {project.shots.map((s, i) => (
-          <Shot
-            key={s.label}
-            shot={s}
-            project={project.name}
-            onOpen={() => onOpen(i)}
-            className="aspect-[16/10] w-[min(84vw,640px)] shrink-0 rounded-xl"
-          />
-        ))}
-      </div>
-
-      {edges.left && (
-        <button
-          type="button"
-          onClick={() => nudge(-1)}
-          aria-label="Previous screenshots"
-          className={`${arrow} left-3`}
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-      )}
-      {edges.right && (
-        <button
-          type="button"
-          onClick={() => nudge(1)}
-          aria-label="More screenshots"
-          className={`${arrow} right-3`}
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
-      )}
-
-      <span className="pointer-events-none absolute right-4 top-4 rounded-full bg-[rgba(20,20,34,0.5)] px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
-        {project.shots.length} screens
-      </span>
-    </div>
-  );
-}
-
-function Metrics({ metrics, dense }: { metrics: Metric[]; dense?: boolean }) {
-  if (dense) {
-    return (
-      <dl className="space-y-0">
-        {metrics.map((m, i) => (
-          <div
-            key={m.label}
-            className={`flex items-baseline justify-between gap-4 py-2.5 ${i > 0 ? RULE : ""}`}
-          >
-            <dt className="text-[13px] text-muted-foreground">{m.label}</dt>
-            <dd className="font-display text-lg font-bold tabular-nums text-[var(--violet-strong)]">
-              {m.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    );
-  }
-  return (
-    <dl className="grid grid-cols-2 gap-3">
-      {metrics.map((m) => (
-        <div
-          key={m.label}
-          className="rounded-xl border border-[rgba(20,20,34,0.08)] bg-white/70 px-3 py-3"
-        >
-          <dt className="font-display text-xl font-bold tabular-nums text-[var(--violet-strong)]">
-            {m.value}
-          </dt>
-          <dd className="mt-1 text-[11px] leading-tight text-muted-foreground">{m.label}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-function StackTags({ stack }: { stack: string[] }) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {stack.map((t) => (
-        <span
-          key={t}
-          className="rounded-full border border-[rgba(106,90,240,0.22)] bg-[rgba(106,90,240,0.06)] px-2.5 py-1 text-[11px] font-medium text-[var(--violet-strong)] transition-colors hover:bg-[rgba(106,90,240,0.12)]"
-        >
-          {t}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function Ctas({ project, full }: { project: Project; full?: boolean }) {
-  if (!project.liveUrl && !project.repoUrl) return null;
-  const base =
-    "inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl px-5 text-sm font-semibold transition-all";
-  return (
-    <div className={`flex flex-wrap gap-2.5 ${full ? "[&>a]:flex-1 sm:[&>a]:flex-none" : ""}`}>
-      {project.liveUrl && (
-        <a
-          href={project.liveUrl}
-          target="_blank"
-          rel="noreferrer"
-          className={`${base} bg-[#17151f] text-white shadow-[0_12px_28px_-14px_rgba(20,20,50,0.8)] hover:bg-[#2a2637]`}
-        >
-          Visit the live site
-          <ArrowUpRight className="h-4 w-4" />
-        </a>
-      )}
-      {project.repoUrl && (
-        <a
-          href={project.repoUrl}
-          target="_blank"
-          rel="noreferrer"
-          className={`${base} border border-[rgba(20,20,34,0.16)] text-foreground hover:border-[rgba(106,90,240,0.45)] hover:text-[var(--violet-strong)]`}
-        >
-          <Github className="h-4 w-4" />
-          Repository
-        </a>
-      )}
-    </div>
-  );
-}
-
-function Decisions({ decisions, columns }: { decisions: Decision[]; columns?: boolean }) {
-  return (
-    <div>
-      <p className={`${LABEL} mb-4`}>Technical decisions</p>
-      <div className={columns ? "grid gap-x-10 gap-y-0 md:grid-cols-2" : ""}>
-        {decisions.map((d, i) => (
-          <div key={d.title} className={`py-3.5 ${i > 0 && !columns ? RULE : ""} ${columns ? RULE : ""}`}>
-            <h4 className="text-[14.5px] font-semibold text-foreground">{d.title}</h4>
-            <p className="mt-1 text-[13.5px] leading-relaxed text-muted-foreground">{d.text}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+const EYEBROW =
+  "text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[var(--violet-strong)]";
+const HAIRLINE = "border-[rgba(20,20,34,0.09)]";
 
 function ChallengeBox({ challenge }: { challenge: NonNullable<Project["challenge"]> }) {
   return (
-    <div className="mt-6 rounded-2xl border border-[#f0dedb] bg-[#fdf8f7] p-5">
+    <div className="mt-7 rounded-2xl border border-[#f0dedb] bg-[#fdf8f7] p-5">
       <div className="flex items-center gap-2">
-        <AlertTriangle className="h-4 w-4 text-[#c0574f]" />
-        <h4 className="text-[14.5px] font-semibold text-[#c0574f]">{challenge.title}</h4>
+        <AlertTriangle className="h-4 w-4 shrink-0 text-[#c0574f]" />
+        <h4 className="font-display text-[15px] font-bold text-[#c0574f]">{challenge.title}</h4>
       </div>
-      <p className="mt-2 text-[13.5px] leading-relaxed text-[#6b5a57]">{challenge.text}</p>
+      <p className="mt-2 text-[13.5px] leading-[1.6] text-[#6b5a57]">{challenge.text}</p>
     </div>
   );
 }
 
-function RoleLine({ role }: { role: Project["role"] }) {
+function ProjectCard({
+  project: p,
+  onOpenShot,
+}: {
+  project: Project;
+  onOpenShot: (index: number) => void;
+}) {
+  const [showDecisions, setShowDecisions] = useState(false);
+
   return (
-    <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-      {role.lead} <span className="font-semibold text-foreground">{role.mine}</span>
-    </p>
+    <motion.article
+      initial="hidden"
+      whileInView="show"
+      viewport={viewportOnce}
+      variants={fadeUp}
+      className="glass flex flex-col overflow-hidden rounded-3xl"
+    >
+      {/* Header — what it is, and the hard facts beside it */}
+      <div className="grid gap-8 p-9 lg:grid-cols-[minmax(0,1fr)_268px] lg:gap-12">
+        <div className="flex flex-col">
+          <p className={EYEBROW}>{p.eyebrow}</p>
+
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-3.5 gap-y-1">
+            <h3 className="font-display text-[34px] font-bold leading-tight tracking-tight">
+              {p.name}
+            </h3>
+            <p className="text-[15px] italic text-muted-foreground">{p.tagline}</p>
+          </div>
+
+          <p className="mt-4 max-w-[62ch] text-pretty text-[17px] leading-[1.6] text-foreground">
+            {p.summary}
+          </p>
+
+          <p className="mt-4 max-w-[62ch] text-[15px] leading-[1.6] text-muted-foreground">
+            {p.role.lead} <span className="font-semibold text-foreground">{p.role.mine}</span>
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-1.5">
+            {p.stack.map((t) => (
+              <span
+                key={t}
+                className="rounded-full border border-[rgba(106,90,240,0.22)] bg-[rgba(106,90,240,0.06)] px-2.5 py-1 text-[11px] font-medium text-[var(--violet-strong)] transition-colors hover:bg-[rgba(106,90,240,0.12)]"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <aside
+          className={`flex flex-col border-t pt-6 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0 ${HAIRLINE}`}
+        >
+          <dl className="space-y-2.5">
+            {p.meta.map((m) => (
+              <div key={m.label} className="flex items-baseline justify-between gap-3">
+                <dt className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
+                  {m.label}
+                </dt>
+                <dd className="text-right text-[12.5px] font-medium text-foreground">{m.value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {p.metrics && (
+            <div className={`mt-5 grid grid-cols-2 gap-4 border-t pt-5 ${HAIRLINE}`}>
+              {p.metrics.map((m) => (
+                <div key={m.label}>
+                  <p className="font-display text-[20px] font-bold tabular-nums text-[var(--violet-strong)]">
+                    {m.value}
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
+                    {m.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(p.liveUrl || p.repoUrl) && (
+            <div className="mt-6 flex flex-wrap gap-2.5 lg:mt-auto lg:pt-6">
+              {p.liveUrl && (
+                <a
+                  href={p.liveUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#17151f] px-4 text-[13px] font-semibold text-white shadow-[0_12px_28px_-14px_rgba(20,20,50,0.8)] transition-colors hover:bg-[#2a2637]"
+                >
+                  Visit the live site
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              )}
+              {p.repoUrl && (
+                <a
+                  href={p.repoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-[rgba(20,20,34,0.16)] px-4 text-[13px] font-semibold text-foreground transition-colors hover:border-[rgba(106,90,240,0.45)] hover:text-[var(--violet-strong)]"
+                >
+                  <Github className="h-4 w-4" />
+                  Repository
+                </a>
+              )}
+            </div>
+          )}
+        </aside>
+      </div>
+
+      {/* Band — screenshots at their real proportions */}
+      {/* On phones the screenshots lead; on wide screens they follow the pitch. */}
+      <div
+        className={`relative order-first border-y lg:order-none ${HAIRLINE}`}
+        style={{ background: PANEL_BG }}
+      >
+        <div className="no-scrollbar flex items-end gap-[18px] overflow-x-auto px-10 pb-[34px] pt-[30px]">
+          {p.shots.map((s, i) => (
+            <button
+              key={s.label}
+              type="button"
+              onClick={() => onOpenShot(i)}
+              aria-label={`View ${p.name} — ${s.label}`}
+              className="group flex h-[340px] shrink-0 cursor-zoom-in flex-col items-center justify-end gap-2.5 transition-transform duration-300 hover:-translate-y-1.5"
+            >
+              <img
+                src={s.src}
+                alt={`${p.name} — ${s.label}`}
+                loading="lazy"
+                style={{ height: 296, width: "auto" }}
+                className="rounded-xl border border-[rgba(20,20,34,0.08)] bg-white shadow-[0_20px_44px_-26px_rgba(20,20,50,0.55)]"
+                onError={(e) => {
+                  e.currentTarget.style.visibility = "hidden";
+                }}
+              />
+              <span className="whitespace-nowrap text-[11px] text-muted-foreground">{s.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <span className="pointer-events-none absolute right-5 top-4 rounded-full bg-[rgba(20,20,34,0.5)] px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
+          {p.shots.length} screens
+        </span>
+      </div>
+
+      {/* Footer — the depth, folded away until asked for */}
+      <div className="px-10 pb-[34px] pt-[26px]">
+        <button
+          type="button"
+          onClick={() => setShowDecisions((v) => !v)}
+          aria-expanded={showDecisions}
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[rgba(20,20,34,0.12)] px-4 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[var(--violet-strong)] transition-colors hover:border-[rgba(106,90,240,0.4)] hover:bg-[rgba(106,90,240,0.05)]"
+        >
+          {showDecisions
+            ? "Hide technical decisions"
+            : `Technical decisions · ${p.decisions.length}`}
+          <ChevronDown
+            className={`h-3.5 w-3.5 transition-transform duration-300 ${
+              showDecisions ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        <AnimatePresence initial={false}>
+          {showDecisions && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25 }}
+            >
+              <div className="mt-6 grid gap-x-11 md:grid-cols-2">
+                {p.decisions.map((d) => (
+                  <div key={d.title} className={`border-t py-4 ${HAIRLINE}`}>
+                    <h4 className="font-display text-[15px] font-bold text-foreground">
+                      {d.title}
+                    </h4>
+                    <p className="mt-1.5 text-[13.5px] leading-[1.6] text-muted-foreground">
+                      {d.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {p.challenge && <ChallengeBox challenge={p.challenge} />}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.article>
   );
 }
 
@@ -544,8 +498,6 @@ export function Projects() {
     };
   }, [zoom, step]);
 
-  const open = (p: Project, index: number) => setZoom({ shots: p.shots, index, name: p.name });
-
   return (
     <>
       <section id="projects" className="relative py-28">
@@ -557,7 +509,10 @@ export function Projects() {
             variants={stagger(0.05)}
             className="mb-14 text-center"
           >
-            <motion.p variants={fadeUp} className={`mb-3 ${LABEL} tracking-[0.2em]`}>
+            <motion.p
+              variants={fadeUp}
+              className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--violet-strong)]"
+            >
               Selected work
             </motion.p>
             <motion.h2
@@ -573,149 +528,11 @@ export function Projects() {
 
           <div className="space-y-10">
             {projects.map((p) => (
-              <motion.article
+              <ProjectCard
                 key={p.name}
-                initial="hidden"
-                whileInView="show"
-                viewport={viewportOnce}
-                variants={fadeUp}
-                className="glass overflow-hidden rounded-3xl"
-              >
-                {p.layout === "sheet" ? (
-                  <div className="grid lg:grid-cols-[296px_1fr]">
-                    {/* Rail: identity and hard facts */}
-                    <aside
-                      className="flex flex-col gap-5 p-7 sm:p-8 lg:border-r lg:border-[rgba(20,20,34,0.08)]"
-                      style={{ background: PANEL_BG }}
-                    >
-                      <div>
-                        <h3 className="font-display text-2xl font-bold tracking-[0.06em] text-foreground">
-                          {p.name}
-                        </h3>
-                        <p className="mt-1.5 text-sm italic text-muted-foreground">{p.tagline}</p>
-                      </div>
-
-                      <div className={`${RULE} pt-4`}>
-                        <dl className="space-y-2.5">
-                          {p.meta.map((m) => (
-                            <div key={m.label} className="flex items-baseline justify-between gap-3">
-                              <dt className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-                                {m.label}
-                              </dt>
-                              <dd className="text-right text-[13px] font-medium text-foreground">
-                                {m.value}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </div>
-
-                      {p.metrics && (
-                        <div className={`${RULE} pt-4`}>
-                          <Metrics metrics={p.metrics} />
-                        </div>
-                      )}
-
-                      <div className={`${RULE} pt-4`}>
-                        <p className={`${LABEL} mb-2.5`}>Stack</p>
-                        <StackTags stack={p.stack} />
-                      </div>
-
-                      <Ctas project={p} full />
-                    </aside>
-
-                    {/* Story: what it is, what it looks like, what I decided */}
-                    <div className="p-7 sm:p-9">
-                      <p className={LABEL}>{p.eyebrow}</p>
-                      <p className="mt-3 text-[19px] leading-[1.55] text-foreground">{p.summary}</p>
-                      <RoleLine role={p.role} />
-
-                      <div className="mt-7">
-                        <div className="mb-3 flex items-center justify-between">
-                          <p className={LABEL}>Screens</p>
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-                            {p.team ? (
-                              <Users className="h-3.5 w-3.5" />
-                            ) : (
-                              <User className="h-3.5 w-3.5" />
-                            )}
-                            {p.shots.length} screens
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                          {p.shots.map((s, i) => (
-                            <Shot
-                              key={s.label}
-                              shot={s}
-                              project={p.name}
-                              onOpen={() => open(p, i)}
-                              className="aspect-[166/372] w-full rounded-2xl"
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className={`mt-8 ${RULE} pt-6`}>
-                        <Decisions decisions={p.decisions} />
-                      </div>
-
-                      {p.challenge && <ChallengeBox challenge={p.challenge} />}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="p-7 sm:p-9">
-                      <p className={LABEL}>{p.eyebrow}</p>
-                      <div className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                        <h3 className="font-display text-3xl font-bold tracking-[0.04em] sm:text-4xl">
-                          {p.name}
-                        </h3>
-                        <p className="text-sm italic text-muted-foreground">{p.tagline}</p>
-                      </div>
-
-                      <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_300px]">
-                        <div>
-                          <p className="text-[19px] leading-[1.55] text-foreground">{p.summary}</p>
-                          <RoleLine role={p.role} />
-                        </div>
-                        <div className="lg:border-l lg:border-[rgba(20,20,34,0.08)] lg:pl-8">
-                          <dl className="space-y-2.5">
-                            {p.meta.map((m) => (
-                              <div
-                                key={m.label}
-                                className="flex items-baseline justify-between gap-3"
-                              >
-                                <dt className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-                                  {m.label}
-                                </dt>
-                                <dd className="text-[13px] font-medium text-foreground">
-                                  {m.value}
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
-                          {p.metrics && (
-                            <div className={`mt-3 ${RULE} pt-1`}>
-                              <Metrics metrics={p.metrics} dense />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <ShotBand project={p} onOpen={(i) => open(p, i)} />
-
-                    <div className="p-7 sm:p-9">
-                      <Decisions decisions={p.decisions} columns />
-                      {p.challenge && <ChallengeBox challenge={p.challenge} />}
-                      <div className={`mt-7 ${RULE} flex flex-wrap items-center justify-between gap-4 pt-6`}>
-                        <StackTags stack={p.stack} />
-                        <Ctas project={p} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </motion.article>
+                project={p}
+                onOpenShot={(index) => setZoom({ shots: p.shots, index, name: p.name })}
+              />
             ))}
           </div>
         </div>

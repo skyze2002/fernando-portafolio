@@ -8,7 +8,7 @@ export default defineConfig(async ({ command }) => {
     tailwindcss(),
     // TanStack Start also picks up src/server.ts (SSR error wrapper) and
     // src/start.ts (start instance) from their conventional locations.
-    tanstackStart({ customViteReactPlugin: true }),
+    tanstackStart(),
   ];
 
   // Nitro is build-only. It produces the deployable server output (on Vercel it
