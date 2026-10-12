@@ -39,6 +39,68 @@ type Project = {
 
 const projects: Project[] = [
   {
+    name: "brrrr.",
+    eyebrow: "Real-estate investing app · Personal project · 2026",
+    tagline: "Whether a house is worth buying, in seconds.",
+    summary:
+      "A native iOS and Android app for investors who buy, fix and refinance houses. It works out how much of their money stays trapped in a deal, estimates the after-repair value from real Zillow comparables, tracks the rehab spend and finds materials with live prices.",
+    role: {
+      lead: "Built alone, end to end.",
+      mine: "Flutter app, Python API, the AI and property integrations, the security model, and both signed release builds.",
+    },
+    meta: [
+      { label: "Team", value: "Solo" },
+      { label: "Platforms", value: "iOS · Android" },
+      { label: "Status", value: "Store-ready builds" },
+    ],
+    metrics: [
+      { value: "258", label: "automated tests" },
+      { value: "37", label: "security & privacy tests" },
+      { value: "8,400", label: "lines of Dart + Python" },
+      { value: "7", label: "feature modules" },
+    ],
+    decisions: [
+      {
+        title: "Seven modules, four layers",
+        text: "Each feature splits into domain, data, application and presentation and is wired through providers, so every layer can be tested on its own instead of through the UI.",
+      },
+      {
+        title: "Money is never a floating-point number",
+        text: "Every amount runs through Decimal and whole cents. The one approximation left — the amortisation factor — is documented as an approximation rather than hidden.",
+      },
+      {
+        title: "Everything from outside is treated as hostile",
+        text: "Server and model responses are validated field by field, images are checked by their bytes rather than their extension, and a comparable can only open zillow.com: the allow-list rejects javascript:, raw IPs, internal hosts and lookalikes like zillow.com.evil.com.",
+      },
+      {
+        title: "No accounts, no tracking, nothing stored",
+        text: "Only the minimum leaves the phone, the backend keeps none of it, the fonts ship inside the app so opening it calls nobody, and tests assert exactly which fields are sent.",
+      },
+      {
+        title: "Quality is enforced, not hoped for",
+        text: "The suite runs against mocked APIs so it costs no credits, every screen is exercised at 200% text on a narrow phone, and the build fails outright if someone signs with the debug key, allows cleartext traffic or commits a secret.",
+      },
+    ],
+    challenge: {
+      title: "A generic 502 was hiding the real answer",
+      text: "Production began failing with an opaque 502. The provider had actually run out of credits and was replying 402, but that got flattened on the way out. I mapped the case explicitly and added logs that record the status code and never the key — so next time the error says what it is.",
+    },
+    stack: ["Flutter", "Dart", "Riverpod", "Hive", "Python", "FastAPI", "Pydantic", "OpenAI"],
+    team: false,
+    shots: [
+      { src: "/projects/brrrr/verdict.jpg", label: "The verdict · money trapped" },
+      { src: "/projects/brrrr/levers.jpg", label: "When it doesn't close · levers" },
+      { src: "/projects/brrrr/autofill.jpg", label: "Autofill a listing · AI" },
+      { src: "/projects/brrrr/comparables.jpg", label: "Zillow comparables" },
+      { src: "/projects/brrrr/mortgage.jpg", label: "Mortgage simulator" },
+      { src: "/projects/brrrr/expenses.jpg", label: "Rehab spend per house" },
+      { src: "/projects/brrrr/products.jpg", label: "Materials with live prices" },
+      { src: "/projects/brrrr/a11y.jpg", label: "Every screen at 200% text" },
+    ],
+    liveUrl: null,
+    repoUrl: null,
+  },
+  {
     name: "Rentaven",
     eyebrow: "Property management SaaS · Fizz Software · 2026",
     tagline: "Your rent, safe at home.",
