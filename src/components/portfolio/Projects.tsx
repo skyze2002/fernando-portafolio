@@ -81,10 +81,6 @@ const projects: Project[] = [
         text: "The suite runs against mocked APIs so it costs no credits, every screen is exercised at 200% text on a narrow phone, and the build fails outright if someone signs with the debug key, allows cleartext traffic or commits a secret.",
       },
     ],
-    challenge: {
-      title: "A generic 502 was hiding the real answer",
-      text: "Production began failing with an opaque 502. The provider had actually run out of credits and was replying 402, but that got flattened on the way out. I mapped the case explicitly and added logs that record the status code and never the key — so next time the error says what it is.",
-    },
     stack: ["Flutter", "Dart", "Riverpod", "Hive", "Python", "FastAPI", "Pydantic", "OpenAI"],
     team: false,
     shots: [
